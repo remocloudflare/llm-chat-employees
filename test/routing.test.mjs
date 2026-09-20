@@ -9,23 +9,29 @@ import {
 
 const messages = [{ role: "user", content: "Hello" }];
 
-test("OpenAI preference selects the OpenAI dynamic-route branch", () => {
-	const request = buildGatewayRequest(messages, "openai");
+test("OpenAI preference selects the OpenAI dynamic-route branch", async () => {
+	const request = buildGatewayRequest(messages, "openai", "gateway-token");
+	const payload = await request.json();
 
-	assert.equal(request.provider, "compat");
-	assert.equal(request.endpoint, "chat/completions");
-	assert.equal(request.query.model, "dynamic/remo-openai");
-	assert.equal(request.query.stream, true);
-	assert.deepEqual(JSON.parse(request.headers["cf-aig-metadata"]), {
+	assert.equal(
+		request.url,
+		"https://gateway.ai.cloudflare.com/v1/815b94af8be996b270364b66fa166aad/opencode-hermes/compat/chat/completions",
+	);
+	assert.equal(request.method, "POST");
+	assert.equal(request.headers.get("cf-aig-authorization"), "Bearer gateway-token");
+	assert.deepEqual(JSON.parse(request.headers.get("cf-aig-metadata")), {
 		provider: "openai",
 	});
+	assert.equal(payload.model, "dynamic/remo-openai");
+	assert.equal(payload.stream, true);
 });
 
-test("company default omits provider metadata and takes the false branch", () => {
-	const request = buildGatewayRequest(messages, "default");
+test("company default omits provider metadata and takes the false branch", async () => {
+	const request = buildGatewayRequest(messages, "default", "gateway-token");
+	const payload = await request.json();
 
-	assert.equal(request.query.model, "dynamic/remo-openai");
-	assert.deepEqual(request.headers, {});
+	assert.equal(payload.model, "dynamic/remo-openai");
+	assert.equal(request.headers.get("cf-aig-metadata"), null);
 });
 
 test("unknown model preferences cannot select arbitrary providers", () => {

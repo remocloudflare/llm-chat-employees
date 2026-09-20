@@ -9,6 +9,11 @@ export interface Env {
 	AI: Ai;
 
 	/**
+	 * AI Gateway Run token used only for server-side gateway requests.
+	 */
+	CF_AIG_TOKEN: string;
+
+	/**
 	 * Binding for static assets.
 	 */
 	ASSETS: { fetch: (request: Request) => Promise<Response> };

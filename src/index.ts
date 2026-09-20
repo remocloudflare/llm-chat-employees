@@ -10,7 +10,6 @@
 import { Env, ChatMessage } from "./types";
 import {
 	buildGatewayRequest,
-	GATEWAY_ID,
 	normalizeModelPreference,
 } from "./routing";
 
@@ -69,11 +68,22 @@ async function handleChatRequest(
 			messages.unshift({ role: "system", content: SYSTEM_PROMPT });
 		}
 
+		if (!env.CF_AIG_TOKEN) {
+			return new Response(
+				JSON.stringify({ error: "AI Gateway is not configured" }),
+				{
+					status: 503,
+					headers: { "content-type": "application/json" },
+				},
+			);
+		}
+
 		const gatewayRequest = buildGatewayRequest(
 			messages,
 			normalizeModelPreference(modelPreference),
+			env.CF_AIG_TOKEN,
 		);
-		const response = await env.AI.gateway(GATEWAY_ID).run(gatewayRequest);
+		const response = await fetch(gatewayRequest);
 
 		if (!response.ok) {
 			const detail = await response.text();
