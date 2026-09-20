@@ -9,7 +9,27 @@ const chatMessages = document.getElementById("chat-messages");
 const userInput = document.getElementById("user-input");
 const sendButton = document.getElementById("send-button");
 const modelPreference = document.getElementById("model-preference");
+const themeToggle = document.getElementById("theme-toggle");
 const typingIndicator = document.getElementById("typing-indicator");
+
+function applyTheme(theme) {
+	const resolved = theme === "light" ? "light" : "dark";
+	document.documentElement.dataset.theme = resolved;
+	const isDark = resolved === "dark";
+	themeToggle.textContent = isDark ? "☀️" : "🌙";
+	themeToggle.setAttribute(
+		"aria-label",
+		isDark ? "Switch to light mode" : "Switch to dark mode",
+	);
+	themeToggle.title = themeToggle.getAttribute("aria-label");
+}
+
+applyTheme(localStorage.getItem("theme") || "dark");
+themeToggle.addEventListener("click", () => {
+	const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+	localStorage.setItem("theme", next);
+	applyTheme(next);
+});
 
 // Chat state
 let chatHistory = [
@@ -205,7 +225,9 @@ async function sendMessage() {
 function addMessageToChat(role, content) {
 	const messageEl = document.createElement("div");
 	messageEl.className = `message ${role}-message`;
-	messageEl.innerHTML = `<p>${content}</p>`;
+	const textEl = document.createElement("p");
+	textEl.textContent = content;
+	messageEl.appendChild(textEl);
 	chatMessages.appendChild(messageEl);
 
 	// Scroll to bottom

@@ -43,3 +43,26 @@ test("chat UI offers an explicit OpenAI preference and sends it to the API", asy
 	assert.match(html, /<option value="openai">OpenAI \(GPT-4o mini\)<\/option>/);
 	assert.match(script, /modelPreference: modelPreference\.value/);
 });
+
+test("chat UI includes a persistent accessible theme toggle", async () => {
+	const [html, script] = await Promise.all([
+		readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+		readFile(new URL("../public/chat.js", import.meta.url), "utf8"),
+	]);
+
+	assert.match(html, /id="theme-toggle"/);
+	assert.match(html, /data-theme="dark"/);
+	assert.match(html, /aria-label="Switch to light mode"/);
+	assert.match(script, /localStorage\.setItem\("theme"/);
+	assert.match(script, /document\.documentElement\.dataset\.theme/);
+});
+
+test("chat messages are rendered as text rather than executable HTML", async () => {
+	const script = await readFile(
+		new URL("../public/chat.js", import.meta.url),
+		"utf8",
+	);
+
+	assert.doesNotMatch(script, /innerHTML = `<p>\$\{content\}<\/p>`/);
+	assert.match(script, /textContent = content/);
+});
