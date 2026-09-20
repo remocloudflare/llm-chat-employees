@@ -87,10 +87,30 @@
 			}
 
 			.message-input {
-				display: flex;
+				display: grid;
+				grid-template-columns: auto 1fr auto;
+				gap: 0.5rem;
+				align-items: end;
 				padding: 0.75rem;
 				border-top: 1px solid var(--border-color);
 				background-color: white;
+			}
+
+			.model-picker {
+				display: flex;
+				flex-direction: column;
+				gap: 0.2rem;
+				font-size: 0.75rem;
+				color: var(--text-light);
+			}
+
+			#model-preference {
+				min-height: 44px;
+				padding: 0.5rem;
+				border: 1px solid var(--border-color);
+				border-radius: 4px;
+				background: white;
+				color: var(--text-color);
 			}
 
 			#user-input {
@@ -163,6 +183,13 @@
 			</div>
 
 			<div class="message-input">
+				<label class="model-picker" for="model-preference">
+					Model
+					<select id="model-preference">
+						<option value="default">Company default</option>
+						<option value="openai">OpenAI (GPT-4o mini)</option>
+					</select>
+				</label>
 				<textarea
 					id="user-input"
 					placeholder="Type your message here..."

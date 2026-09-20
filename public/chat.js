@@ -8,6 +8,7 @@
 const chatMessages = document.getElementById("chat-messages");
 const userInput = document.getElementById("user-input");
 const sendButton = document.getElementById("send-button");
+const modelPreference = document.getElementById("model-preference");
 const typingIndicator = document.getElementById("typing-indicator");
 
 // Chat state
@@ -50,6 +51,7 @@ async function sendMessage() {
 	isProcessing = true;
 	userInput.disabled = true;
 	sendButton.disabled = true;
+	modelPreference.disabled = true;
 
 	// Add user message to chat
 	addMessageToChat("user", message);
@@ -83,6 +85,7 @@ async function sendMessage() {
 			},
 			body: JSON.stringify({
 				messages: chatHistory,
+				modelPreference: modelPreference.value,
 			}),
 		});
 
@@ -191,6 +194,7 @@ async function sendMessage() {
 		isProcessing = false;
 		userInput.disabled = false;
 		sendButton.disabled = false;
+		modelPreference.disabled = false;
 		userInput.focus();
 	}
 }

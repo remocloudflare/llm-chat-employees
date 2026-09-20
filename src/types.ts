@@ -21,3 +21,5 @@ export interface ChatMessage {
 	role: "system" | "user" | "assistant";
 	content: string;
 }
+
+export type ModelPreference = "default" | "openai";
