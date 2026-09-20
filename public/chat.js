@@ -8,7 +8,44 @@
 const chatMessages = document.getElementById("chat-messages");
 const userInput = document.getElementById("user-input");
 const sendButton = document.getElementById("send-button");
+const modelPreference = document.getElementById("model-preference");
+const themeToggle = document.getElementById("theme-toggle");
 const typingIndicator = document.getElementById("typing-indicator");
+
+function applyTheme(theme) {
+	const resolved = theme === "light" ? "light" : "dark";
+	document.documentElement.dataset.theme = resolved;
+	const isDark = resolved === "dark";
+	themeToggle.textContent = isDark ? "☀️" : "🌙";
+	themeToggle.setAttribute(
+		"aria-label",
+		isDark ? "Switch to light mode" : "Switch to dark mode",
+	);
+	themeToggle.title = themeToggle.getAttribute("aria-label");
+}
+
+function readStoredTheme() {
+	try {
+		return localStorage.getItem("theme") || "dark";
+	} catch {
+		return "dark";
+	}
+}
+
+function storeTheme(theme) {
+	try {
+		localStorage.setItem("theme", theme);
+	} catch {
+		// Theme persistence is optional; the UI remains functional without it.
+	}
+}
+
+applyTheme(readStoredTheme());
+themeToggle.addEventListener("click", () => {
+	const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+	applyTheme(next);
+	storeTheme(next);
+});
 
 // Chat state
 let chatHistory = [
@@ -50,6 +87,7 @@ async function sendMessage() {
 	isProcessing = true;
 	userInput.disabled = true;
 	sendButton.disabled = true;
+	modelPreference.disabled = true;
 
 	// Add user message to chat
 	addMessageToChat("user", message);
@@ -68,9 +106,9 @@ async function sendMessage() {
 		// Create new assistant response element
 		const assistantMessageEl = document.createElement("div");
 		assistantMessageEl.className = "message assistant-message";
-		assistantMessageEl.innerHTML = "<p></p>";
+		const assistantTextEl = document.createElement("p");
+		assistantMessageEl.appendChild(assistantTextEl);
 		chatMessages.appendChild(assistantMessageEl);
-		const assistantTextEl = assistantMessageEl.querySelector("p");
 
 		// Scroll to bottom
 		chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -83,6 +121,7 @@ async function sendMessage() {
 			},
 			body: JSON.stringify({
 				messages: chatHistory,
+				modelPreference: modelPreference.value,
 			}),
 		});
 
@@ -191,6 +230,7 @@ async function sendMessage() {
 		isProcessing = false;
 		userInput.disabled = false;
 		sendButton.disabled = false;
+		modelPreference.disabled = false;
 		userInput.focus();
 	}
 }
@@ -201,7 +241,9 @@ async function sendMessage() {
 function addMessageToChat(role, content) {
 	const messageEl = document.createElement("div");
 	messageEl.className = `message ${role}-message`;
-	messageEl.innerHTML = `<p>${content}</p>`;
+	const textEl = document.createElement("p");
+	textEl.textContent = content;
+	messageEl.appendChild(textEl);
 	chatMessages.appendChild(messageEl);
 
 	// Scroll to bottom
