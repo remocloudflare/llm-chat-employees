@@ -24,11 +24,27 @@ function applyTheme(theme) {
 	themeToggle.title = themeToggle.getAttribute("aria-label");
 }
 
-applyTheme(localStorage.getItem("theme") || "dark");
+function readStoredTheme() {
+	try {
+		return localStorage.getItem("theme") || "dark";
+	} catch {
+		return "dark";
+	}
+}
+
+function storeTheme(theme) {
+	try {
+		localStorage.setItem("theme", theme);
+	} catch {
+		// Theme persistence is optional; the UI remains functional without it.
+	}
+}
+
+applyTheme(readStoredTheme());
 themeToggle.addEventListener("click", () => {
 	const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-	localStorage.setItem("theme", next);
 	applyTheme(next);
+	storeTheme(next);
 });
 
 // Chat state
@@ -90,9 +106,9 @@ async function sendMessage() {
 		// Create new assistant response element
 		const assistantMessageEl = document.createElement("div");
 		assistantMessageEl.className = "message assistant-message";
-		assistantMessageEl.innerHTML = "<p></p>";
+		const assistantTextEl = document.createElement("p");
+		assistantMessageEl.appendChild(assistantTextEl);
 		chatMessages.appendChild(assistantMessageEl);
-		const assistantTextEl = assistantMessageEl.querySelector("p");
 
 		// Scroll to bottom
 		chatMessages.scrollTop = chatMessages.scrollHeight;

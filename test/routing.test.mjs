@@ -55,6 +55,8 @@ test("chat UI includes a persistent accessible theme toggle", async () => {
 	assert.match(html, /aria-label="Switch to light mode"/);
 	assert.match(script, /localStorage\.setItem\("theme"/);
 	assert.match(script, /document\.documentElement\.dataset\.theme/);
+	assert.match(script, /try[\s\S]*localStorage\.getItem\("theme"\)[\s\S]*catch/);
+	assert.match(script, /try[\s\S]*localStorage\.setItem\("theme"[\s\S]*catch/);
 });
 
 test("chat messages are rendered as text rather than executable HTML", async () => {
@@ -63,6 +65,6 @@ test("chat messages are rendered as text rather than executable HTML", async () 
 		"utf8",
 	);
 
-	assert.doesNotMatch(script, /innerHTML = `<p>\$\{content\}<\/p>`/);
+	assert.doesNotMatch(script, /\.innerHTML\s*=/);
 	assert.match(script, /textContent = content/);
 });
