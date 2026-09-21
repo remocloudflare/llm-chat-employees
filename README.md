@@ -34,7 +34,7 @@ This template demonstrates how to build an AI-powered chat interface using Cloud
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
 - A Cloudflare account with Workers AI access
 - An active Cloudflare zone if you want a custom hostname
-- An Access identity provider, or One-time PIN for a simpler workshop setup
+- Cloudflare Access One-time PIN enabled for the workshop user
 - An OpenAI API key only if you want to exercise the OpenAI branch
 
 ### Student bootstrap credentials
@@ -54,8 +54,7 @@ In **My Profile → API Tokens → Create Custom Token**, create a least-privile
 | AI Gateway | Run | Test the authenticated gateway |
 | Workers Scripts | Edit | Deploy the chat Worker and manage Worker secrets |
 | Workers AI | Read | Invoke Workers AI models |
-| Access: Apps and Policies | Edit | Create the Access application and Allow policy |
-| Access: Organizations, Identity Providers, and Groups | Read | Discover the configured IdP and groups |
+| Access: Apps and Policies | Edit | Create the Access application and One-time PIN Allow policy |
 | Secrets Store | Edit | Automate AI Gateway BYOK configuration, if required |
 
 **Zone permissions**
@@ -96,7 +95,26 @@ hide-env CF_AIG_TOKEN
 
 The browser never receives this token. The Worker uses it server-side when calling the Dynamic Route.
 
-#### 3. OpenAI provider key
+#### 3. Access login for students: One-time PIN only
+
+Do not configure Entra, Okta, or another external identity provider for the student lab. Use Cloudflare Access **One-time PIN** and allow only the student's exact email address.
+
+1. Protect the Worker with **Access → All traffic**.
+2. Set the application login method to **One-time PIN** only.
+3. Create an **Allow** policy with an exact-email Include rule:
+
+```text
+Action:  Allow
+Include: Emails
+Value:   <student-email@example.com>
+```
+
+4. Do not use an `Everyone` or broad email-domain rule. Access is default-deny, so every unlisted email remains blocked even if its owner can request a PIN.
+5. Test in an incognito window: the student enters the pre-authorized email, receives the code, and reaches the chat after verification.
+
+One-time PIN is a login method, not an API-token permission. The Terraform/bootstrap token only needs **Access: Apps and Policies Edit** to create the protected application and its exact-email policy.
+
+#### 4. OpenAI provider key
 
 The OpenAI key is independent of both Cloudflare tokens. Add it under:
 
