@@ -33,6 +33,86 @@ This template demonstrates how to build an AI-powered chat interface using Cloud
 - [Node.js](https://nodejs.org/) (v18 or newer)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
 - A Cloudflare account with Workers AI access
+- An active Cloudflare zone if you want a custom hostname
+- An Access identity provider, or One-time PIN for a simpler workshop setup
+- An OpenAI API key only if you want to exercise the OpenAI branch
+
+### Student bootstrap credentials
+
+Use separate credentials for provisioning and runtime. Do not commit tokens, provider keys, or secrets to Git.
+
+#### 1. Terraform/bootstrap API token
+
+In **My Profile → API Tokens → Create Custom Token**, create a least-privilege token with these permissions.
+
+**Account permissions**
+
+| Permission | Level | Purpose |
+| --- | --- | --- |
+| AI Gateway | Edit | Create and manage the gateway, provider configuration, and Dynamic Routes |
+| AI Gateway | Read | Read-back verification and Terraform state refresh |
+| AI Gateway | Run | Test the authenticated gateway |
+| Workers Scripts | Edit | Deploy the chat Worker and manage Worker secrets |
+| Workers AI | Read | Invoke Workers AI models |
+| Access: Apps and Policies | Edit | Create the Access application and Allow policy |
+| Access: Organizations, Identity Providers, and Groups | Read | Discover the configured IdP and groups |
+| Secrets Store | Edit | Automate AI Gateway BYOK configuration, if required |
+
+**Zone permissions**
+
+| Permission | Level | Purpose |
+| --- | --- | --- |
+| Zone | Read | Find the workshop zone |
+| DNS | Edit | Create the chat hostname DNS record |
+| Workers Routes | Edit | Associate the hostname with the Worker |
+
+Scope the token to the student's specific account and zone:
+
+```text
+Account resources: Include → Specific account → <student account>
+Zone resources:    Include → Specific zone    → <student zone>
+```
+
+Avoid granting access to every account or zone unless the environment is disposable.
+
+Set the token for Terraform or Wrangler. In Nushell:
+
+```nu
+$env.CLOUDFLARE_API_TOKEN = "<bootstrap token>"
+$env.CLOUDFLARE_ACCOUNT_ID = "<account id>"
+```
+
+Do not place the token in `terraform.tfvars` or commit it to the repository.
+
+#### 2. AI Gateway runtime token
+
+In **AI → AI Gateway → your gateway → Settings**, enable **Authenticated Gateway** and select **Create authentication token**. This runtime token needs AI Gateway **Run** access and is stored only as a Worker secret:
+
+```nu
+$env.CF_AIG_TOKEN = "<AI Gateway runtime token>"
+$env.CF_AIG_TOKEN | ^npx wrangler secret put CF_AIG_TOKEN
+hide-env CF_AIG_TOKEN
+```
+
+The browser never receives this token. The Worker uses it server-side when calling the Dynamic Route.
+
+#### 3. OpenAI provider key
+
+The OpenAI key is independent of both Cloudflare tokens. Add it under:
+
+```text
+AI → AI Gateway → your gateway → Provider Keys → Add API Key → OpenAI
+```
+
+For workshops, prefer adding the provider key in the dashboard. Passing it through Terraform can place a sensitive value in Terraform state. Students without an OpenAI API account can use the Workers AI default branch only.
+
+#### Responsibility split
+
+| Mechanism | Recommended responsibility |
+| --- | --- |
+| Terraform | AI Gateway, Dynamic Route, Access application/policy, hostname/DNS, supported DLP settings |
+| Wrangler | Worker deployment and `CF_AIG_TOKEN` secret |
+| Dashboard | OpenAI BYOK key and optional GitHub Builds connection |
 
 ### Installation
 
