@@ -2,8 +2,6 @@
 
 A simple, ready-to-deploy chat application template powered by Cloudflare Workers AI. This template provides a clean starting point for building AI chat applications with streaming responses.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/llm-chat-app-template)
-
 <!-- dash-content-start -->
 
 ## Demo
@@ -137,8 +135,8 @@ For workshops, prefer adding the provider key in the dashboard. Passing it throu
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/cloudflare/templates.git
-   cd templates/llm-chat-app
+   git clone https://github.com/remocloudflare/llm-chat-employees.git
+   cd llm-chat-employees
    ```
 
 2. Install dependencies:
@@ -166,11 +164,19 @@ Note: Using Workers AI accesses your Cloudflare account even during local develo
 
 ### Deployment
 
-Deploy to Cloudflare Workers:
+#### Deploy your own
+
+The default Workers AI path can be deployed independently to your own Cloudflare account. The repository contains no account ID, route, hostname, or secret:
 
 ```bash
+npm ci
+npm test
+npm run check
+npx wrangler login
 npm run deploy
 ```
+
+This creates a separate `workers.dev` deployment using your account's Workers AI binding. Cloudflare Access, AI Gateway, Dynamic Routes, a custom hostname, and third-party provider keys are optional external configuration and are not created by `npm run deploy`. If you enable the authenticated AI Gateway path, add its runtime token only with `npx wrangler secret put CF_AIG_TOKEN`.
 
 ### Monitor
 
