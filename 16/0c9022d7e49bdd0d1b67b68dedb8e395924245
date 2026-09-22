@@ -1,0 +1,25 @@
+src/index.ts
+  s_aceeeb8f8e3991::t_5177065b63979e 71,85
+src/routing.ts
+  s_aceeeb8f8e3991::t_474587b99986c3 14,16,25
+src/types.ts
+  s_aceeeb8f8e3991::t_2f277fddfa4909 16-20
+test/routing.test.mjs
+  s_aceeeb8f8e3991::t_aab4919605ab59 11,14-19,24,36-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "160c9022d7e49bdd0d1b67b68dedb8e395924245",
+  "prompts": {},
+  "sessions": {
+    "s_aceeeb8f8e3991": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f363091d4ffe1GTXGj5RlHlJdS",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "remo <remo@cloudflare.com>"
+    }
+  }
+}
