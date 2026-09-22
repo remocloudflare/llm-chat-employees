@@ -14,6 +14,11 @@ export interface Env {
 	CF_AIG_TOKEN: string;
 
 	/**
+	 * Cloudflare account identifier used to construct the AI Gateway URL.
+	 */
+	CF_ACCOUNT_ID: string;
+
+	/**
 	 * Binding for static assets.
 	 */
 	ASSETS: { fetch: (request: Request) => Promise<Response> };

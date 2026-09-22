@@ -68,7 +68,7 @@ async function handleChatRequest(
 			messages.unshift({ role: "system", content: SYSTEM_PROMPT });
 		}
 
-		if (!env.CF_AIG_TOKEN) {
+		if (!env.CF_AIG_TOKEN || !env.CF_ACCOUNT_ID) {
 			return new Response(
 				JSON.stringify({ error: "AI Gateway is not configured" }),
 				{
@@ -82,6 +82,7 @@ async function handleChatRequest(
 			messages,
 			normalizeModelPreference(modelPreference),
 			env.CF_AIG_TOKEN,
+			env.CF_ACCOUNT_ID,
 		);
 		const response = await fetch(gatewayRequest);
 

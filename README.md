@@ -81,17 +81,21 @@ $env.CLOUDFLARE_ACCOUNT_ID = "<account id>"
 
 Do not place the token in `terraform.tfvars` or commit it to the repository.
 
-#### 2. AI Gateway runtime token
+#### 2. AI Gateway runtime configuration
 
-In **AI → AI Gateway → your gateway → Settings**, enable **Authenticated Gateway** and select **Create authentication token**. This runtime token needs AI Gateway **Run** access and is stored only as a Worker secret:
+In **AI → AI Gateway → your gateway → Settings**, enable **Authenticated Gateway** and select **Create authentication token**. This runtime token needs AI Gateway **Run** access. Store both the token and the account ID as Worker secrets so deployment-specific identifiers do not appear in the repository:
 
 ```nu
 $env.CF_AIG_TOKEN = "<AI Gateway runtime token>"
 $env.CF_AIG_TOKEN | ^npx wrangler secret put CF_AIG_TOKEN
 hide-env CF_AIG_TOKEN
+
+$env.CF_ACCOUNT_ID = "<Cloudflare account ID>"
+$env.CF_ACCOUNT_ID | ^npx wrangler secret put CF_ACCOUNT_ID
+hide-env CF_ACCOUNT_ID
 ```
 
-The browser never receives this token. The Worker uses it server-side when calling the Dynamic Route.
+The browser never receives either value. The account ID is an identifier rather than an authentication credential, but keeping it in a Worker secret prevents it from being published in source or Wrangler configuration.
 
 #### 3. Access login for students: One-time PIN only
 
@@ -127,7 +131,7 @@ For workshops, prefer adding the provider key in the dashboard. Passing it throu
 | Mechanism | Recommended responsibility |
 | --- | --- |
 | Terraform | AI Gateway, Dynamic Route, Access application/policy, hostname/DNS, supported DLP settings |
-| Wrangler | Worker deployment and `CF_AIG_TOKEN` secret |
+| Wrangler | Worker deployment and `CF_AIG_TOKEN` / `CF_ACCOUNT_ID` secrets |
 | Dashboard | OpenAI BYOK key and optional GitHub Builds connection |
 
 ### Installation
@@ -176,7 +180,7 @@ npx wrangler login
 npm run deploy
 ```
 
-This creates a separate `workers.dev` deployment using your account's Workers AI binding. Cloudflare Access, AI Gateway, Dynamic Routes, a custom hostname, and third-party provider keys are optional external configuration and are not created by `npm run deploy`. If you enable the authenticated AI Gateway path, add its runtime token only with `npx wrangler secret put CF_AIG_TOKEN`.
+This creates a separate `workers.dev` deployment using your account's Workers AI binding. Cloudflare Access, AI Gateway, Dynamic Routes, a custom hostname, and third-party provider keys are optional external configuration and are not created by `npm run deploy`. Before using the authenticated AI Gateway path, add `CF_AIG_TOKEN` and `CF_ACCOUNT_ID` with `npx wrangler secret put`; do not add either value to tracked configuration.
 
 ### Monitor
 

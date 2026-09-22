@@ -8,14 +8,20 @@ import {
 } from "../src/routing.ts";
 
 const messages = [{ role: "user", content: "Hello" }];
+const accountId = "00000000000000000000000000000000";
 
 test("OpenAI preference selects the OpenAI dynamic-route branch", async () => {
-	const request = buildGatewayRequest(messages, "openai", "gateway-token");
+	const request = buildGatewayRequest(
+		messages,
+		"openai",
+		"gateway-token",
+		accountId,
+	);
 	const payload = await request.json();
 
 	assert.equal(
 		request.url,
-		"https://gateway.ai.cloudflare.com/v1/815b94af8be996b270364b66fa166aad/opencode-hermes/compat/chat/completions",
+		`https://gateway.ai.cloudflare.com/v1/${accountId}/opencode-hermes/compat/chat/completions`,
 	);
 	assert.equal(request.method, "POST");
 	assert.equal(request.headers.get("cf-aig-authorization"), "Bearer gateway-token");
@@ -27,7 +33,12 @@ test("OpenAI preference selects the OpenAI dynamic-route branch", async () => {
 });
 
 test("company default omits provider metadata and takes the false branch", async () => {
-	const request = buildGatewayRequest(messages, "default", "gateway-token");
+	const request = buildGatewayRequest(
+		messages,
+		"default",
+		"gateway-token",
+		accountId,
+	);
 	const payload = await request.json();
 
 	assert.equal(payload.model, "dynamic/remo-openai");
